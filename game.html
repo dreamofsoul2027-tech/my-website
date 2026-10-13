@@ -2,7 +2,8 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Play Intuition Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play Intuition Test</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -45,10 +46,21 @@
         height: 100%;
         object-fit: cover;
       }
+      @media (max-width: 500px) {
+  .card {
+    width: 95px;
+    height: 95px;
+    font-size: 40px;
+  }
+  h1 {
+    font-size: 26px;
+  }
+}
     </style>
   </head>
   <body>
     <h1>Play Intuition Test</h1>
+    <p><a href="index.html">← Back to home</a></p>
 
     <div class="tabs">
       <button id="tabNumber">Guess the Number</button>
