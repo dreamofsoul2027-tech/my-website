@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Play Intuition Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40px;
+        background-color: #cdc3b6;
+      }
+      h1 { color: #660466; }
+      button, input {
+        font-size: 18px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+      }
+      button { background-color: #92d198; cursor: pointer; }
+      .tabs { margin-bottom: 30px; }
+
+      .cards {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 25px 0;
+      }
+      .card {
+        width: 150px;
+        height: 150px;
+        background-color: #660466;
+        color: white;
+        font-size: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Play Intuition Test</h1>
+
+    <div class="tabs">
+      <button id="tabNumber">Guess the Number</button>
+      <button id="tabPicture">Find the Rose</button>
+    </div>
+
+    <!-- GAME 1: Number guessing -->
+    <section id="numberGame">
+      <p>I'm thinking of a number between 1 and 10.</p>
+      <input type="number" id="guess">
+      <button id="check">Check</button>
+      <p id="result"></p>
+      <button id="again">Play again</button>
+    </section>
+
+    <!-- GAME 2: Find the rose -->
+    <section id="pictureGame" style="display: none;">
+      <p>One card hides a rose. Trust your intuition and pick one!</p>
+      <div class="cards" id="cards"></div>
+      <p id="pictureMessage"></p>
+      <button id="pictureAgain">Play again</button>
+    </section>
+
+    <script>
+      /* ---------- Switching between games ---------- */
+      const numberGame = document.getElementById("numberGame");
+      const pictureGame = document.getElementById("pictureGame");
+
+      document.getElementById("tabNumber").addEventListener("click", function () {
+        numberGame.style.display = "block";
+        pictureGame.style.display = "none";
+      });
+
+      document.getElementById("tabPicture").addEventListener("click", function () {
+        numberGame.style.display = "none";
+        pictureGame.style.display = "block";
+      });
+
+      /* ---------- Game 1: Guess the number ---------- */
+      let secret;
+      let tries;
+      const maxTries = 5;
+
+      const guessBox = document.getElementById("guess");
+      const checkButton = document.getElementById("check");
+      const result = document.getElementById("result");
+
+      function startNumberGame() {
+        secret = Math.floor(Math.random() * 10) + 1;
+        tries = 0;
+        guessBox.value = "";
+        result.textContent = "";
+        checkButton.disabled = false;
+      }
+
+      checkButton.addEventListener("click", function () {
+        const guess = Number(guessBox.value);
+        tries = tries + 1;
+
+        if (guess === secret) {
+          result.textContent = "Correct! You got it in " + tries + " tries!";
+          result.style.color = "green";
+          checkButton.disabled = true;
+        } else if (tries >= maxTries) {
+          result.textContent = "Game over! The number was " + secret + ".";
+          result.style.color = "red";
+          checkButton.disabled = true;
+        } else if (guess < secret) {
+          result.textContent = "Too low. You have " + (maxTries - tries) + " tries left.";
+          result.style.color = "black";
+        } else {
+          result.textContent = "Too high. You have " + (maxTries - tries) + " tries left.";
+          result.style.color = "black";
+        }
+      });
+
+      document.getElementById("again").addEventListener("click", startNumberGame);
+      startNumberGame();
+
+      /* ---------- Game 2: Find the rose ---------- */
+const pictures = [
+  { src: "rose.jpg", isRose: true },
+  { src: "leaf.jpg", isRose: false },
+  { src: "stone.jpg", isRose: false }
+];
+
+const cardsBox = document.getElementById("cards");
+const pictureMessage = document.getElementById("pictureMessage");
+let picked = false;
+let lastRosePosition = -1;
+
+// A fair shuffle (Fisher-Yates)
+function shuffle(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+function startPictureGame() {
+  picked = false;
+  cardsBox.innerHTML = "";
+  pictureMessage.textContent = "";
+
+  // keep shuffling until the rose is in a NEW position
+  let shuffled;
+  let rosePosition;
+  do {
+    shuffled = shuffle(pictures);
+    rosePosition = shuffled.findIndex(function (pic) {
+      return pic.isRose;
+    });
+  } while (rosePosition === lastRosePosition);
+
+  lastRosePosition = rosePosition;
+
+  const cardElements = [];
+
+  function showPicture(card, pic) {
+    card.textContent = "";
+    const img = document.createElement("img");
+    img.src = pic.src;
+    card.appendChild(img);
+  }
+
+  shuffled.forEach(function (pic) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = "❓";
+    cardElements.push(card);
+
+    card.addEventListener("click", function () {
+      if (picked) return;
+      picked = true;
+
+      // reveal the picture the player chose
+      showPicture(card, pic);
+
+      if (pic.isRose) {
+        pictureMessage.textContent = "🌹 You found the rose! Great intuition!";
+        pictureMessage.style.color = "green";
+      } else {
+        pictureMessage.textContent = "Not this one! Here is where the rose was:";
+        pictureMessage.style.color = "red";
+
+        // reveal all the other cards too
+        cardElements.forEach(function (otherCard, index) {
+          if (otherCard !== card) {
+            showPicture(otherCard, shuffled[index]);
+          }
+        });
+      }
+    });
+
+    cardsBox.appendChild(card);
+  });
+}
+
+document.getElementById("pictureAgain").addEventListener("click", startPictureGame);
+startPictureGame();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+  body {
+    background-color: #cdc3b6;
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 0 20px;
+  }
+
+  h1 {
+    color: #660466;
+  }
+
+  h2 {
+    color: #660466;
+  }
+
+  button {
+    background-color: #92d198;
+    color: rgb(10, 9, 9);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+</style>
+    <title>My First Website</title>
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+    <p>My name is Annie and I am learning to build websites. It's my first day of learning HTML and CSS, and I am excited to start this journey. I hope to create a website that showcases my skills and interests. 
+    </p>
+    <h2>My Objectives</h2>
+    <ol>
+    <li>Learn how to build a website</li>
+    <li>Understand the basics of HTML and CSS</li>
+    <li>Create a personal portfolio to showcase my work</li>
+    <li>Learn how to troubleshoot issues that arise while building websites</li>
+    <li>Learn how to use web development tools and frameworks </li>
+    <li>Learn how to optimize websites for performance and user experience</li>
+    <li>Learn how to deploy and maintain websites</li>
+    <li>Learn how to create responsive designs</li>
+    <li>Learn how to create games</li>
+    <li>Learn how to work with JavaScript</li>
+       </ol>
+       <h2>My games</h2>
+<a href="game.html">Play Intuition Test</a>
+<br><br>
+      
+<button id="myButton">Make me smile!</button>
+      <p id="myParagraph"> Thanks for visiting my website!
+        <br>
+        See what's Inside!.</p>
+      <script>
+  const quotes = [
+    "Small steps every day lead to big results.",
+    "You are closer than you think. Keep going!",
+    "Mistakes are proof that you are trying.",
+    "Today is a great day to learn something new.",
+    "Believe in yourself. You have already come so far!",
+    "Every expert was once a beginner.",
+    "Your only limit is the one you set yourself.",
+    "Progress, not perfection.",
+    "Smile! You are doing better than you think."
+  ];
+
+  const colors = ["indigo", "deeppink", "red", "darkgreen", "darkblue"];
+  const emojis = ["😊", "🌟", "💪", "🎉", "🌈", "🚀", "✨", "😄"];
+  let remaining = [];
+
+  const button = document.getElementById("myButton");
+  const paragraph = document.getElementById("myParagraph");
+
+  button.addEventListener("click", function () {
+    if (remaining.length === 0) {
+      remaining = quotes.slice();
+    }
+
+    const randomIndex = Math.floor(Math.random() * remaining.length);
+    const quote = remaining.splice(randomIndex, 1)[0];
+
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    paragraph.textContent = quote + " " + randomEmoji;
+    paragraph.style.color = colors[Math.floor(Math.random() * colors.length)];
+  });
+</script>
+</body>
+</html>
+
