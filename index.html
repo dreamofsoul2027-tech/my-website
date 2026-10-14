@@ -22,20 +22,62 @@
       }
 
       button {
-        background-color: #92d198;
-        color: rgb(10, 9, 9);
+        background-color: #660466;
+        color: rgb(249, 247, 247);
         border: none;
         padding: 10px 20px;
         border-radius: 8px;
         font-size: 20px;
         cursor: pointer;
       }
+      nav {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 12px;
+  background-color: #660466;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav a:hover { text-decoration: underline; }
+
+.game-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin: 15px 0 25px;
+}
+.game-card {
+  background-color: rgb(233, 144, 245);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  color: #660466;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+}
+.game-card:hover { transform: translateY(-5px); }
+.game-card span { display: block; font-size: 40px; margin-bottom: 8px; }
     </style>
   </head>
 
   <body>
+    <nav>
+  <a href="index.html">Home</a>
+  <a href="game.html">Intuition Test</a>
+  <a href="guess.html">Guess the Number</a>
+  <a href="memory.html">Memory Match</a>
+</nav>
+
     <h1>Hello, world!</h1>
-    <p>My name is Moon and I am learning to build websites. It's my first day of learning HTML and CSS, and I am excited to start this journey. I hope to create a website that showcases my skills and interests.</p>
+    <p>My name is Moon and I am learning to build websites. I'm learning HTML and CSS, and I am excited to start this journey. I hope to create a website that showcases my skills and interests.</p>
 
     <h2>My Objectives</h2>
     <ol>
@@ -52,7 +94,11 @@
     </ol>
 
     <h2>My games</h2>
-    <a href="game.html">Play Intuition Test</a>
+<div class="game-cards">
+  <a class="game-card" href="game.html"><span>😇</span>Intuition Test</a>
+  <a class="game-card" href="memory.html"><span>🧠</span>Memory Match</a>
+  <a class="game-card" href="guess.html"><span>🔢</span>Guess the Number</a>
+</div>
     <br><br>
 
     <button id="myButton">Click to smile!</button>

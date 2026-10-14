@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40px;
+        background-color: #cdc3b6;
+      }
+      h1 { color: #660466; }
+      button, input {
+        font-size: 18px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+      }
+      button {
+        background-color: rgb(233, 144, 245);
+        cursor: pointer;
+      }
+
+      nav {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        padding: 12px;
+        background-color: #660466;
+        border-radius: 10px;
+        margin: 0 20px 20px;
+      }
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      nav a:hover { text-decoration: underline; }
+
+      @media (max-width: 500px) {
+        h1 { font-size: 26px; }
+        nav { gap: 10px; font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="game.html">Intuition Test</a>
+      <a href="guess.html">Guess the Number</a>
+      <a href="memory.html">Memory Match</a>
+    </nav>
+
+    <h1>Guess the Number</h1>
+
+    <p>I'm thinking of a number between 1 and 10.</p>
+    <input type="number" id="guess">
+    <button id="check">Check</button>
+    <p id="result"></p>
+    <button id="again">Play again</button>
+
+    <script>
+      let secret;
+      let tries;
+      const maxTries = 5;
+
+      const guessBox = document.getElementById("guess");
+      const checkButton = document.getElementById("check");
+      const result = document.getElementById("result");
+
+      function startNumberGame() {
+        secret = Math.floor(Math.random() * 10) + 1;
+        tries = 0;
+        guessBox.value = "";
+        result.textContent = "";
+        checkButton.disabled = false;
+      }
+
+      checkButton.addEventListener("click", function () {
+        const guess = Number(guessBox.value);
+        tries = tries + 1;
+
+        if (guess === secret) {
+          result.textContent = "Correct! You got it in " + tries + " tries!";
+          result.style.color = "green";
+          checkButton.disabled = true;
+        } else if (tries >= maxTries) {
+          result.textContent = "Game over! The number was " + secret + ".";
+          result.style.color = "red";
+          checkButton.disabled = true;
+        } else if (guess < secret) {
+          result.textContent = "Too low. You have " + (maxTries - tries) + " tries left.";
+          result.style.color = "black";
+        } else {
+          result.textContent = "Too high. You have " + (maxTries - tries) + " tries left.";
+          result.style.color = "black";
+        }
+      });
+
+      document.getElementById("again").addEventListener("click", startNumberGame);
+      startNumberGame();
+    </script>
+  </body>
+</html>

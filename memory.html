@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40px;
+        background-color: #cdc3b6;
+      }
+      h1 { color: #660466; }
+      button {
+        font-size: 18px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        background-color: #92d198;
+        cursor: pointer;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(4, 80px);
+        gap: 12px;
+        justify-content: center;
+        margin: 25px 0;
+      }
+      .tile {
+        width: 80px;
+        height: 80px;
+        background-color: #660466;
+        color: white;
+        font-size: 36px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+      }
+      .tile.open { background-color: #f5f0e8; }
+      .tile.matched { background-color: #92d198; }
+
+      @media (max-width: 400px) {
+  .board { grid-template-columns: repeat(4, 65px); gap: 8px; }
+  .tile { width: 65px; height: 65px; font-size: 30px; }
+  nav { gap: 10px; font-size: 14px; }
+}
+      nav {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 12px;
+  background-color: #660466;
+  border-radius: 10px;
+  margin: 0 20px 20px;
+}
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+      <body>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="game.html">Intuition Test</a>
+      <a href="guess.html">Guess the Number</a>
+      <a href="memory.html">Memory Match</a>
+    </nav>
+
+    <h1>Memory Match</h1>
+
+    <p>Moves: <span id="moves">0</span></p>
+    <p>Time: <span id="time">0</span> seconds</p>
+    <p>High Score: <span id="highScore">-</span> moves</p>
+    <div class="board" id="board"></div>
+    <p id="message"></p>
+    <button id="restart">Play again</button>
+
+    <script>
+      const symbols = ["🌹", "🍀", "🌙", "⭐", "🔥", "🌈", "🍎", "🎵", "🐁", "🐈"];
+
+      const board = document.getElementById("board");
+      const movesText = document.getElementById("moves");
+      const message = document.getElementById("message");
+      const timeText = document.getElementById("time");
+      const highScoreText = document.getElementById("highScore");
+
+      let firstTile = null;
+      let locked = false;
+      let moves = 0;
+      let matchedPairs = 0;
+      let seconds = 0;
+      let timerId = null;
+
+      let highScore = localStorage.getItem("memoryHighScore");
+      if (highScore !== null) {
+        highScoreText.textContent = highScore;
+      }
+
+      function shuffle(list) {
+        const copy = list.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = temp;
+        }
+        return copy;
+      }
+
+      function startTimer() {
+        clearInterval(timerId);
+        seconds = 0;
+        timeText.textContent = seconds;
+        timerId = setInterval(function () {
+          seconds = seconds + 1;
+          timeText.textContent = seconds;
+        }, 1000);
+      }
+
+      function startGame() {
+        board.innerHTML = "";
+        message.textContent = "";
+        firstTile = null;
+        locked = false;
+        moves = 0;
+        matchedPairs = 0;
+        movesText.textContent = moves;
+        startTimer();
+
+        const deck = shuffle(symbols.concat(symbols));
+
+        deck.forEach(function (symbol) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.dataset.symbol = symbol;
+          tile.addEventListener("click", function () {
+            flip(tile);
+          });
+          board.appendChild(tile);
+        });
+      }
+
+      function flip(tile) {
+        if (locked) return;
+        if (tile.classList.contains("open")) return;
+        if (tile.classList.contains("matched")) return;
+
+        tile.classList.add("open");
+        tile.textContent = tile.dataset.symbol;
+
+        if (firstTile === null) {
+          firstTile = tile;
+          return;
+        }
+
+        moves = moves + 1;
+        movesText.textContent = moves;
+
+        if (firstTile.dataset.symbol === tile.dataset.symbol) {
+          firstTile.classList.add("matched");
+          tile.classList.add("matched");
+          firstTile = null;
+          matchedPairs = matchedPairs + 1;
+
+          if (matchedPairs === symbols.length) {
+            clearInterval(timerId);
+            message.textContent = "🎉 You won in " + moves + " moves and " + seconds + " seconds!";
+
+            if (highScore === null || moves < Number(highScore)) {
+              highScore = moves;
+              localStorage.setItem("memoryHighScore", highScore);
+              highScoreText.textContent = highScore;
+              message.textContent = "🏆 New high score: " + moves + " moves in " + seconds + " seconds!";
+            }
+
+            message.style.color = "green";
+          }
+        } else {
+          locked = true;
+          const secondTile = tile;
+          setTimeout(function () {
+            firstTile.classList.remove("open");
+            firstTile.textContent = "";
+            secondTile.classList.remove("open");
+            secondTile.textContent = "";
+            firstTile = null;
+            locked = false;
+          }, 1000);
+        }
+      }
+
+      document.getElementById("restart").addEventListener("click", startGame);
+      startGame();
+    </script>
+  </body>
+</html>
