@@ -5,21 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My First Website</title>
     <style>
+      :root {
+  --bg: #cdc3b6;
+  --text: #222;
+  --heading: #660466;
+  --card: rgb(233, 144, 245);
+}
+
+body.dark {
+  --bg: #1e1b24;
+  --text: #eee;
+  --heading: #d9a7e0;
+  --card: #2d2838;
+}
       body {
-        background-color: #cdc3b6;
+        background-color: var(--bg);
+color: var(--text);
         font-family: Arial, sans-serif;
         max-width: 700px;
         margin: 50px auto;
         padding: 0 20px;
       }
 
-      h1 {
-        color: #660466;
-      }
-
-      h2 {
-        color: #660466;
-      }
+      h1, h2 {
+  color: var(--heading);
+}
 
       button {
         background-color: #660466;
@@ -53,12 +63,12 @@ nav a:hover { text-decoration: underline; }
   margin: 15px 0 25px;
 }
 .game-card {
-  background-color: rgb(233, 144, 245);
+  background-color: var(--card);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
   text-decoration: none;
-  color: #660466;
+  color: var(--heading);
   font-weight: bold;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s;
@@ -137,5 +147,6 @@ nav a:hover { text-decoration: underline; }
         paragraph.style.color = colors[Math.floor(Math.random() * colors.length)];
       });
     </script>
+    <script src="theme.js"></script>
   </body>
 </html>
