@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Time</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40px;
+        background-color: #cdc3b6;
+      }
+      h1 { color: #660466; }
+      button {
+        font-size: 18px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background-color: rgb(233, 144, 245);
+        cursor: pointer;
+      }
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 400px;
+        margin: 20px auto;
+      }
+      .options button { width: 100%; }
+      .options button.correct { background-color: #92d198; }
+      .options button.wrong { background-color: #f28b82; }
+
+      nav {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        padding: 12px;
+        background-color: #660466;
+        border-radius: 10px;
+        margin: 0 20px 20px;
+      }
+      nav a { color: white; text-decoration: none; font-weight: bold; }
+      nav a:hover { text-decoration: underline; }
+
+      @media (max-width: 500px) {
+        h1 { font-size: 26px; }
+        nav { gap: 10px; font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="game.html">Intuition Test</a>
+      <a href="guess.html">Guess the Number</a>
+      <a href="memory.html">Memory Match</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="snake.html">Snake</a>
+    </nav>
+
+    <h1>Quiz Time</h1>
+    <p id="progress"></p>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <p id="feedback"></p>
+    <button id="next" style="display: none;">Next</button>
+    <p>Best score: <span id="best">-</span></p>
+
+    <script>
+      const questions = [
+        { q: "What does HTML stand for?",
+          options: ["HyperText Markup Language", "High Tech Modern Language", "Home Tool Markup Language"],
+          answer: 0 },
+        { q: "Which language adds style and colors to a page?",
+          options: ["JavaScript", "CSS", "Python"],
+          answer: 1 },
+        { q: "Which language makes a page interactive?",
+          options: ["HTML", "CSS", "JavaScript"],
+          answer: 2 },
+        { q: "Which symbol means 'exactly equal' in JavaScript?",
+          options: ["=", "===", "=>"],
+          answer: 1 },
+        { q: "Which tag makes the biggest heading?",
+          options: ["<h1>", "<h6>", "<p>"],
+          answer: 0 }
+      ];
+
+      const progress = document.getElementById("progress");
+      const questionText = document.getElementById("question");
+      const optionsBox = document.getElementById("options");
+      const feedback = document.getElementById("feedback");
+      const nextButton = document.getElementById("next");
+      const bestText = document.getElementById("best");
+
+      let current = 0;
+      let score = 0;
+      let answered = false;
+
+      let best = localStorage.getItem("quizBest");
+      if (best !== null) bestText.textContent = best + " / " + questions.length;
+
+      function showQuestion() {
+        answered = false;
+        feedback.textContent = "";
+        nextButton.style.display = "none";
+        optionsBox.innerHTML = "";
+
+        const item = questions[current];
+        progress.textContent = "Question " + (current + 1) + " of " + questions.length;
+        questionText.textContent = item.q;
+
+        item.options.forEach(function (text, index) {
+          const btn = document.createElement("button");
+          btn.textContent = text;
+          btn.addEventListener("click", function () {
+            choose(btn, index);
+          });
+          optionsBox.appendChild(btn);
+        });
+      }
+
+      function choose(btn, index) {
+        if (answered) return;
+        answered = true;
+
+        const item = questions[current];
+        const buttons = optionsBox.querySelectorAll("button");
+
+        if (index === item.answer) {
+          score = score + 1;
+          btn.classList.add("correct");
+          feedback.textContent = "Correct! 🎉";
+        } else {
+          btn.classList.add("wrong");
+          buttons[item.answer].classList.add("correct");
+          feedback.textContent = "Not quite. The right answer is highlighted.";
+        }
+
+        nextButton.textContent = current === questions.length - 1 ? "See result" : "Next";
+        nextButton.style.display = "inline-block";
+      }
+
+      function showResult() {
+        progress.textContent = "";
+        questionText.textContent = "You scored " + score + " out of " + questions.length + "!";
+        optionsBox.innerHTML = "";
+        feedback.textContent = score === questions.length ? "Perfect! 🌟" : "Good try. Play again to beat it!";
+
+        if (best === null || score > Number(best)) {
+          best = score;
+          localStorage.setItem("quizBest", best);
+          bestText.textContent = best + " / " + questions.length;
+        }
+
+        nextButton.textContent = "Play again";
+        nextButton.style.display = "inline-block";
+        current = questions.length;
+      }
+
+      nextButton.addEventListener("click", function () {
+        if (current >= questions.length) {
+          current = 0;
+          score = 0;
+          showQuestion();
+        } else if (current === questions.length - 1) {
+          showResult();
+        } else {
+          current = current + 1;
+          showQuestion();
+        }
+      });
+
+      showQuestion();
+    </script>
+    <script src="theme.js"></script>
+  </body>
+</html>

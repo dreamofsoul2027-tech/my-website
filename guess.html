@@ -51,6 +51,8 @@
       <a href="game.html">Intuition Test</a>
       <a href="guess.html">Guess the Number</a>
       <a href="memory.html">Memory Match</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="snake.html">Snake</a>
     </nav>
 
     <h1>Guess the Number</h1>
@@ -59,9 +61,13 @@
     <input type="number" id="guess">
     <button id="check">Check</button>
     <p id="result"></p>
+    <p>Right guesses this visit: <span id="score">0</span></p>
     <button id="again">Play again</button>
 
     <script>
+      const scoreText = document.getElementById("score");
+let score = Number(sessionStorage.getItem("numberScore")) || 0;
+scoreText.textContent = score;
       let secret;
       let tries;
       const maxTries = 5;
@@ -75,6 +81,7 @@
         tries = 0;
         guessBox.value = "";
         result.textContent = "";
+        result.style.color = "";
         checkButton.disabled = false;
       }
 
@@ -86,16 +93,19 @@
           result.textContent = "Correct! You got it in " + tries + " tries!";
           result.style.color = "green";
           checkButton.disabled = true;
+          score = score + 1;
+  sessionStorage.setItem("numberScore", score);
+  scoreText.textContent = score;
         } else if (tries >= maxTries) {
           result.textContent = "Game over! The number was " + secret + ".";
           result.style.color = "red";
           checkButton.disabled = true;
         } else if (guess < secret) {
           result.textContent = "Too low. You have " + (maxTries - tries) + " tries left.";
-          result.style.color = "black";
+          result.style.color = "";
         } else {
           result.textContent = "Too high. You have " + (maxTries - tries) + " tries left.";
-          result.style.color = "black";
+          result.style.color = "";
         }
       });
 

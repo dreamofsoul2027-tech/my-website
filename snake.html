@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40px;
+        background-color: #cdc3b6;
+      }
+      h1 { color: #660466; }
+      button {
+        font-size: 18px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        background-color: rgb(233, 144, 245);
+        cursor: pointer;
+      }
+
+      canvas {
+        background-color: #1e1b24;
+        border: 4px solid #660466;
+        border-radius: 8px;
+        max-width: 90%;
+        height: auto;
+        touch-action: none;
+      }
+
+      .pad {
+        display: grid;
+        grid-template-columns: repeat(3, 60px);
+        grid-template-rows: repeat(2, 60px);
+        gap: 8px;
+        justify-content: center;
+        margin: 15px auto;
+      }
+      .pad button { font-size: 24px; padding: 0; }
+      .up { grid-column: 2; grid-row: 1; }
+      .left { grid-column: 1; grid-row: 2; }
+      .down { grid-column: 2; grid-row: 2; }
+      .right { grid-column: 3; grid-row: 2; }
+
+      nav {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        padding: 12px;
+        background-color: #660466;
+        border-radius: 10px;
+        margin: 0 20px 20px;
+      }
+      nav a { color: white; text-decoration: none; font-weight: bold; }
+      nav a:hover { text-decoration: underline; }
+
+      @media (max-width: 500px) {
+        h1 { font-size: 26px; }
+        nav { gap: 10px; font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="game.html">Intuition Test</a>
+      <a href="guess.html">Guess the Number</a>
+      <a href="memory.html">Memory Match</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="snake.html">Snake</a>
+    </nav>
+
+    <h1>Snake 🐍</h1>
+    <p>Score: <span id="score">0</span> | High score: <span id="high">0</span></p>
+
+    <canvas id="board" width="400" height="400"></canvas>
+    <p id="message">Press Start, then use the arrow keys, WASD, swipe, or the buttons.</p>
+
+    <div class="pad">
+      <button class="up" id="btnUp">⬆️</button>
+      <button class="left" id="btnLeft">⬅️</button>
+      <button class="down" id="btnDown">⬇️</button>
+      <button class="right" id="btnRight">➡️</button>
+    </div>
+
+    <button id="start">Start</button>
+
+    <script>
+      const canvas = document.getElementById("board");
+      const ctx = canvas.getContext("2d");
+      const scoreText = document.getElementById("score");
+      const highText = document.getElementById("high");
+      const message = document.getElementById("message");
+
+      const cell = 20;                       // size of one square in pixels
+      const tiles = canvas.width / cell;     // 20 squares across
+
+      let snake, dx, dy, nextDx, nextDy, food, score, timerId;
+      let high = Number(localStorage.getItem("snakeHigh")) || 0;
+      highText.textContent = high;
+
+      function placeFood() {
+        let spot;
+        do {
+          spot = {
+            x: Math.floor(Math.random() * tiles),
+            y: Math.floor(Math.random() * tiles)
+          };
+        } while (snake.some(function (part) {
+          return part.x === spot.x && part.y === spot.y;
+        }));
+        food = spot;
+      }
+
+      function draw() {
+  // checkerboard background, so movement is easy to follow
+  for (let x = 0; x < tiles; x++) {
+    for (let y = 0; y < tiles; y++) {
+      ctx.fillStyle = (x + y) % 2 === 0 ? "#2d2838" : "#26222f";
+      ctx.fillRect(x * cell, y * cell, cell, cell);
+    }
+  }
+
+   // frog
+  const fx = food.x * cell + cell / 2;
+  const fy = food.y * cell + cell / 2;
+  ctx.font = (cell - 2) + "px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🐸", fx, fy + 1);
+
+  // snake body: rounded squares that get darker toward the tail
+  snake.forEach(function (part, index) {
+    const lightness = Math.max(30, 60 - index * 2);
+    ctx.fillStyle = "hsl(130, 55%, " + lightness + "%)";
+    ctx.beginPath();
+    ctx.roundRect(part.x * cell + 1, part.y * cell + 1, cell - 2, cell - 2, 6);
+    ctx.fill();
+  });
+
+  // eyes on the head, looking in the direction of travel
+  const head = snake[0];
+  const cx = head.x * cell + cell / 2;
+  const cy = head.y * cell + cell / 2;
+  const forwardX = dx * 3;
+  const forwardY = dy * 3;
+  const sideX = -dy * 4;
+  const sideY = dx * 4;
+
+  [[1, 1], [-1, -1]].forEach(function (sign) {
+    const ex = cx + forwardX + sideX * sign[0];
+    const ey = cy + forwardY + sideY * sign[1];
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(ex + dx, ey + dy, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+      function gameOver() {
+        clearInterval(timerId);
+        timerId = null;
+        message.textContent = "Game over! You scored " + score + ".";
+        message.style.color = "red";
+
+        if (score > high) {
+          high = score;
+          localStorage.setItem("snakeHigh", high);
+          highText.textContent = high;
+          message.textContent = "🏆 New high score: " + score + "!";
+        }
+      }
+
+      function step() {
+        dx = nextDx;
+        dy = nextDy;
+
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+        const hitWall = head.x < 0 || head.x >= tiles || head.y < 0 || head.y >= tiles;
+        const hitSelf = snake.some(function (part) {
+          return part.x === head.x && part.y === head.y;
+        });
+
+        if (hitWall || hitSelf) {
+          gameOver();
+          return;
+        }
+
+        snake.unshift(head);               // add a new head
+
+        if (head.x === food.x && head.y === food.y) {
+          score = score + 1;               // ate the Frog: keep the tail, so we grow
+          scoreText.textContent = score;
+          placeFood();
+        } else {
+          snake.pop();                     // no Frog: remove the tail, so we just move
+        }
+
+        draw();
+      }
+
+      function startGame() {
+        clearInterval(timerId);
+        snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+        dx = 1; dy = 0;
+        nextDx = 1; nextDy = 0;
+        score = 0;
+        scoreText.textContent = score;
+        message.textContent = "Go!";
+        message.style.color = "";
+        placeFood();
+        draw();
+        timerId = setInterval(step, 250);
+      }
+
+      function setDirection(x, y) {
+        if (x === -dx && y === -dy) return;   // can't turn straight back into yourself
+        nextDx = x;
+        nextDy = y;
+      }
+
+      /* ---------- Keyboard ---------- */
+      document.addEventListener("keydown", function (event) {
+        const key = event.key;
+        if (key === "ArrowUp" || key === "w" || key === "W") setDirection(0, -1);
+        else if (key === "ArrowDown" || key === "s" || key === "S") setDirection(0, 1);
+        else if (key === "ArrowLeft" || key === "a" || key === "A") setDirection(-1, 0);
+        else if (key === "ArrowRight" || key === "d" || key === "D") setDirection(1, 0);
+        else return;
+        event.preventDefault();               // stop the page from scrolling
+      });
+
+      /* ---------- On-screen buttons ---------- */
+      document.getElementById("btnUp").addEventListener("click", function () { setDirection(0, -1); });
+      document.getElementById("btnDown").addEventListener("click", function () { setDirection(0, 1); });
+      document.getElementById("btnLeft").addEventListener("click", function () { setDirection(-1, 0); });
+      document.getElementById("btnRight").addEventListener("click", function () { setDirection(1, 0); });
+
+            /* ---------- Swipe on phones ---------- */
+      let touchX = 0;
+      let touchY = 0;
+
+      canvas.addEventListener("touchstart", function (event) {
+        touchX = event.touches[0].clientX;
+        touchY = event.touches[0].clientY;
+      });
+
+      canvas.addEventListener("touchend", function (event) {
+        const diffX = event.changedTouches[0].clientX - touchX;
+        const diffY = event.changedTouches[0].clientY - touchY;
+
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+          setDirection(diffX > 0 ? 1 : -1, 0);
+        } else {
+          setDirection(0, diffY > 0 ? 1 : -1);
+        }
+      });
+
+      document.getElementById("start").addEventListener("click", startGame);
+
+      // draw an empty starting board
+      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      dx = 1; dy = 0; nextDx = 1; nextDy = 0;
+      placeFood();
+      draw();
+    </script>
+    <script src="theme.js"></script>
+  </body>
+</html>
